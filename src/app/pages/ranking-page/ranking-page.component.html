@@ -1,0 +1,52 @@
+<div class="top-home-btn">
+  <a routerLink="/home" class="btn-home">Home</a>
+</div>
+
+<!-- resto do HTML do ranking que você já tem -->
+
+<div class="ranking-page">
+  <h3>Ranking do bolão</h3>
+
+  <div class="actions">
+    <button type="button" (click)="loadRanking()" [disabled]="loading">
+      {{ loading ? 'Atualizando...' : 'Atualizar' }}
+    </button>
+  </div>
+
+  <div class="alert error" *ngIf="error">
+    {{ error }}
+  </div>
+
+  <div *ngIf="loading">Carregando ranking...</div>
+
+  <table class="ranking-table" *ngIf="!loading && rows.length">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Usuário</th>
+        <th>Total</th>
+        <th>Placar exato</th>
+        <th>Resultado</th>
+        <th>Pts Fase 5</th>
+        <th>Pts Extras</th>
+        <th>Acertou campeão</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let r of rows">
+        <td>{{ r.position }}</td>
+        <td>{{ r.username }}</td>
+        <td>{{ r.total_points }}</td>
+        <td>{{ r.exact_scores }}</td>
+        <td>{{ r.results }}</td>
+        <td>{{ r.stage5_points }}</td>
+        <td>{{ r.extras_points }}</td>
+        <td>{{ r.champion_hit ? 'Sim' : 'Não' }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="!loading && !rows.length">
+    Nenhum participante no ranking ainda.
+  </div>
+</div>

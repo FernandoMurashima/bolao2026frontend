@@ -1,0 +1,21 @@
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <span class="logo">Copa 2026</span>
+  </div>
+  <ul class="menu">
+    <li [class.active]="isActive('/palpites')">
+      <a routerLink="/palpites" routerLinkActive="active">Palpites</a>
+    </li>
+    <li [class.active]="isActive('/ranking')">
+      <a routerLink="/ranking" routerLinkActive="active">Ranking</a>
+    </li>
+    <li [class.active]="isActive('/regulamento')">
+      <a routerLink="/regulamento" routerLinkActive="active">Regulamento</a>
+    </li>
+    <li [class.active]="isActive('/admin/resultados')">
+      <a routerLink="/admin/resultados" routerLinkActive="active">
+        Resultados oficiais
+      </a>
+    </li>
+  </ul>
+</nav>

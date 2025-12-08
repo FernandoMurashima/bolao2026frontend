@@ -1,0 +1,70 @@
+.reg-page {
+  background: #ffffff;
+  padding: 1rem 1.5rem;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  max-width: 900px;
+  margin: 0 auto;
+
+  h2 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+  }
+
+  section {
+    margin-bottom: 1rem;
+
+    h3 {
+      margin-bottom: 0.4rem;
+    }
+
+    p {
+      margin-bottom: 0.4rem;
+    }
+
+    ul,
+    ol {
+      padding-left: 1.2rem;
+      margin: 0.2rem 0 0.4rem;
+      font-size: 0.92rem;
+    }
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.4rem 0 0.6rem;
+    font-size: 0.9rem;
+
+    th,
+    td {
+      border: 1px solid #e5e7eb;
+      padding: 0.35rem 0.5rem;
+      text-align: left;
+    }
+
+    th {
+      background: #f9fafb;
+      font-weight: 600;
+    }
+  }
+}
+.top-home-btn {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.5rem;
+}
+
+.btn-home {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  font-size: 0.8rem;
+  text-decoration: none;
+  color: #111827;
+  cursor: pointer;
+}

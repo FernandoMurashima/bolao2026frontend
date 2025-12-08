@@ -1,0 +1,155 @@
+<div class="top-home-btn">
+  <a routerLink="/home" class="btn-home">Home </a>
+  <a>   </a>
+</div>
+
+
+<div class="bets-page">
+  <div class="tabs">
+    <button
+      *ngFor="let s of stages"
+      type="button"
+      [class.active]="activeStageOrder === s.order"
+      (click)="setActiveStage(s.order)"
+    >
+      {{ s.name }}
+    </button>
+    <button type="button" class="extras-tab" disabled>
+      Palpites especiais
+    </button>
+  </div>
+
+  <div class="content">
+    <div class="section">
+      <h3>Palpites por jogo</h3>
+      <div class="stage-info" *ngIf="stages.length">
+        <span>
+          Fase: {{ getStageByOrder(activeStageOrder)?.name }}
+        </span>
+        <span>
+          Pontos: Placar exato
+          {{ getStageByOrder(activeStageOrder)?.points_exact_score }} |
+          Resultado
+          {{ getStageByOrder(activeStageOrder)?.points_result }} |
+          Gols de um time
+          {{ getStageByOrder(activeStageOrder)?.points_one_team_goals }}
+        </span>
+        <span>
+          Limite:
+          {{ getStageByOrder(activeStageOrder)?.deadline | date: 'short' }}
+        </span>
+      </div>
+
+      <div class="alert error" *ngIf="stageError">
+        {{ stageError }}
+      </div>
+
+      <div *ngIf="loadingMatches">Carregando jogos...</div>
+
+      <div *ngIf="!loadingMatches">
+        <table class="matches-table" *ngIf="getCurrentStageRows().length">
+          <thead>
+            <tr>
+              <th>Grupo</th>
+              <th>Data/Hora</th>
+              <th>Casa</th>
+              <th>Palpite</th>
+              <th>Fora</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of getCurrentStageRows()">
+              <td>{{ row.match.group_name }}</td>
+              <td>{{ row.match.kickoff | date: 'short' }}</td>
+              <td>{{ row.match.home_team.code }}</td>
+              <td class="score-inputs">
+                <input
+                  type="number"
+                  min="0"
+                  [disabled]="isStageDeadlinePassed(activeStageOrder)"
+                  [value]="row.home_score"
+                  (input)="updateScore(row, 'home_score', $any($event.target).value)"
+                />
+                <span>x</span>
+                <input
+                  type="number"
+                  min="0"
+                  [disabled]="isStageDeadlinePassed(activeStageOrder)"
+                  [value]="row.away_score"
+                  (input)="updateScore(row, 'away_score', $any($event.target).value)"
+                />
+              </td>
+              <td>{{ row.match.away_team.code }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div *ngIf="!getCurrentStageRows().length">
+          Nenhum jogo encontrado para esta fase.
+        </div>
+
+        <div class="actions">
+          <button
+            type="button"
+            (click)="saveStageBets()"
+            [disabled]="savingStage || isStageDeadlinePassed(activeStageOrder)"
+          >
+            {{ savingStage ? 'Salvando...' : 'Salvar palpites da fase' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Palpites especiais</h3>
+
+      <div class="alert info">
+        Esses palpites usam o prazo dos extras definido para o torneio.
+      </div>
+
+      <div class="alert error" *ngIf="extrasError">
+        {{ extrasError }}
+      </div>
+      <div class="alert success" *ngIf="extrasSuccess">
+        {{ extrasSuccess }}
+      </div>
+
+      <div *ngIf="extrasLoading">Carregando palpites especiais...</div>
+
+      <form *ngIf="!extrasLoading" [formGroup]="extrasForm">
+        <div
+          class="extra-row"
+          *ngFor="let cfg of extrasConfig; let i = index"
+          [formGroupName]="i"
+        >
+          <div class="extra-label">
+            {{ cfg.label }} ({{ cfg.points }} pts)
+          </div>
+          <div class="extra-input">
+            <ng-container *ngIf="cfg.useTeam; else playerField">
+              <select formControlName="team">
+                <option [ngValue]="null">Selecione...</option>
+                <option *ngFor="let t of teams" [ngValue]="t.id">
+                  {{ t.code }} - {{ t.name }}
+                </option>
+              </select>
+            </ng-container>
+            <ng-template #playerField>
+              <input
+                type="text"
+                formControlName="player_name"
+                placeholder="Nome do jogador"
+              />
+            </ng-template>
+          </div>
+        </div>
+      </form>
+
+      <div class="actions">
+        <button type="button" (click)="saveExtras()" [disabled]="extrasSaving">
+          {{ extrasSaving ? 'Salvando...' : 'Salvar palpites especiais' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,81 @@
+<div class="top-home-btn">
+  <a routerLink="/home" class="btn-home">Home</a>
+</div>
+
+<!-- resto do HTML do ranking que você já tem -->
+
+<div class="admin-results">
+  <h3>Resultados oficiais dos jogos</h3>
+
+  <div class="alert info">
+    Apenas a organização deve ter acesso a esta tela.
+    Os resultados oficiais aqui informados atualizam automaticamente os pontos e o ranking.
+  </div>
+
+  <div class="tabs" *ngIf="stages.length">
+    <button
+      *ngFor="let s of stages"
+      type="button"
+      [class.active]="activeStageOrder === s.order"
+      (click)="setActiveStage(s.order)"
+    >
+      {{ s.name }}
+    </button>
+  </div>
+
+  <div class="alert error" *ngIf="error">
+    {{ error }}
+  </div>
+  <div class="alert success" *ngIf="success">
+    {{ success }}
+  </div>
+
+  <div *ngIf="loading">Carregando dados...</div>
+
+  <div *ngIf="!loading">
+    <table class="matches-table" *ngIf="getCurrentRows().length">
+      <thead>
+        <tr>
+          <th>Grupo</th>
+          <th>Data/Hora</th>
+          <th>Casa</th>
+          <th>Placar oficial</th>
+          <th>Fora</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of getCurrentRows()">
+          <td>{{ row.match.group_name }}</td>
+          <td>{{ row.match.kickoff | date: 'short' }}</td>
+          <td>{{ row.match.home_team.code }}</td>
+          <td class="score-inputs">
+            <input
+              type="number"
+              min="0"
+              [(ngModel)]="row.home_score"
+              name="home_{{ row.match.id }}"
+            />
+            <span>x</span>
+            <input
+              type="number"
+              min="0"
+              [(ngModel)]="row.away_score"
+              name="away_{{ row.match.id }}"
+            />
+          </td>
+          <td>{{ row.match.away_team.code }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="!getCurrentRows().length">
+      Nenhum jogo encontrado para esta fase.
+    </div>
+
+    <div class="actions">
+      <button type="button" (click)="saveResults()" [disabled]="saving">
+        {{ saving ? 'Salvando...' : 'Salvar resultados da fase' }}
+      </button>
+    </div>
+  </div>
+</div>
