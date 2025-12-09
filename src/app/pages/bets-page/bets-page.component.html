@@ -1,8 +1,6 @@
 <div class="top-home-btn">
   <a routerLink="/home" class="btn-home">Home </a>
-  <a>   </a>
 </div>
-
 
 <div class="bets-page">
   <div class="tabs">
@@ -14,7 +12,13 @@
     >
       {{ s.name }}
     </button>
-    <button type="button" class="extras-tab" disabled>
+
+    <!-- link nova tela de especiais -->
+    <button
+      type="button"
+      class="extras-tab"
+      routerLink="/palpites-especiais"
+    >
       Palpites especiais
     </button>
   </div>
@@ -99,57 +103,6 @@
         </div>
       </div>
     </div>
-
-    <div class="section">
-      <h3>Palpites especiais</h3>
-
-      <div class="alert info">
-        Esses palpites usam o prazo dos extras definido para o torneio.
-      </div>
-
-      <div class="alert error" *ngIf="extrasError">
-        {{ extrasError }}
-      </div>
-      <div class="alert success" *ngIf="extrasSuccess">
-        {{ extrasSuccess }}
-      </div>
-
-      <div *ngIf="extrasLoading">Carregando palpites especiais...</div>
-
-      <form *ngIf="!extrasLoading" [formGroup]="extrasForm">
-        <div
-          class="extra-row"
-          *ngFor="let cfg of extrasConfig; let i = index"
-          [formGroupName]="i"
-        >
-          <div class="extra-label">
-            {{ cfg.label }} ({{ cfg.points }} pts)
-          </div>
-          <div class="extra-input">
-            <ng-container *ngIf="cfg.useTeam; else playerField">
-              <select formControlName="team">
-                <option [ngValue]="null">Selecione...</option>
-                <option *ngFor="let t of teams" [ngValue]="t.id">
-                  {{ t.code }} - {{ t.name }}
-                </option>
-              </select>
-            </ng-container>
-            <ng-template #playerField>
-              <input
-                type="text"
-                formControlName="player_name"
-                placeholder="Nome do jogador"
-              />
-            </ng-template>
-          </div>
-        </div>
-      </form>
-
-      <div class="actions">
-        <button type="button" (click)="saveExtras()" [disabled]="extrasSaving">
-          {{ extrasSaving ? 'Salvando...' : 'Salvar palpites especiais' }}
-        </button>
-      </div>
-    </div>
   </div>
 </div>
+

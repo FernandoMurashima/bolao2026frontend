@@ -1,28 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  FormArray,
-  FormBuilder,
-  FormGroup,
-} from '@angular/forms';
-import { ReactiveFormsModule } from '@angular/forms';
-import { CopaService, Stage, Match, Bet, ExtraBet, Team } from '../../services/copa.service';
-import { forkJoin } from 'rxjs';
 import { RouterModule } from '@angular/router';
+import { ReactiveFormsModule } from '@angular/forms';
+import { forkJoin } from 'rxjs';
 
+import { CopaService, Stage, Match, Bet } from '../../services/copa.service';
 
 interface MatchRow {
   match: Match;
   betId?: number;
   home_score: number | null;
   away_score: number | null;
-}
-
-interface ExtraFormRow {
-  type: string;
-  label: string;
-  useTeam: boolean;
-  points: number;
 }
 
 @Component({
@@ -40,99 +28,32 @@ export class BetsPageComponent implements OnInit {
   savingStage = false;
   stageError: string | null = null;
 
-  teams: Team[] = [];
-  extrasForm!: FormGroup;
-  extrasConfig: ExtraFormRow[] = [
-    { type: 'CHAMPION', label: 'Campeã', useTeam: true, points: 500 },
-    { type: 'RUNNER_UP', label: 'Vice-campeã', useTeam: true, points: 250 },
-    { type: 'THIRD_PLACE', label: '3º lugar', useTeam: true, points: 125 },
-    { type: 'MOST_RED', label: 'Mais cartões vermelhos', useTeam: true, points: 100 },
-    { type: 'MOST_YELLOW', label: 'Mais cartões amarelos', useTeam: true, points: 100 },
-    { type: 'FEWEST_GC', label: 'Menos gols sofridos', useTeam: true, points: 50 },
-    { type: 'MOST_GC', label: 'Mais gols sofridos', useTeam: true, points: 250 },
-    { type: 'FEWEST_GF', label: 'Menos gols marcados', useTeam: true, points: 250 },
-    { type: 'MOST_GF', label: 'Mais gols marcados', useTeam: true, points: 300 },
-    { type: 'TOP_SCORER', label: 'Artilheiro (jogador)', useTeam: false, points: 300 },
-  ];
-  extrasLoading = false;
-  extrasSaving = false;
-  extrasError: string | null = null;
-  extrasSuccess: string | null = null;
-  extrasMap: { [type: string]: ExtraBet } = {};
-
-  constructor(private fb: FormBuilder, private copaService: CopaService) {}
+  constructor(private copaService: CopaService) {}
 
   ngOnInit(): void {
-    this.initExtrasForm();
     this.loadInitialData();
   }
 
-  initExtrasForm(): void {
-    this.extrasForm = this.fb.group({
-      extras: this.fb.array(
-        this.extrasConfig.map((cfg) =>
-          this.fb.group({
-            type: [cfg.type],
-            team: [null],
-            player_name: [''],
-          })
-        )
-      ),
-    });
-  }
-
-  get extrasArray(): FormArray {
-    return this.extrasForm.get('extras') as FormArray;
-  }
-
-  loadInitialData(): void {
+  private loadInitialData(): void {
     this.loadingMatches = true;
-    this.extrasLoading = true;
 
     forkJoin({
       stages: this.copaService.getStages(),
-      teams: this.copaService.getTeams(),
       bets: this.copaService.getBets(),
-      extraBets: this.copaService.getExtraBets(),
     }).subscribe({
-      next: ({ stages, teams, bets, extraBets }) => {
+      next: ({ stages, bets }) => {
         this.stages = stages.sort((a, b) => a.order - b.order);
-        this.teams = teams;
-
-        const extrasMap: { [type: string]: ExtraBet } = {};
-        extraBets.forEach((e) => {
-          extrasMap[e.type] = e;
-        });
-        this.extrasMap = extrasMap;
-        this.patchExtrasForm();
-
         this.loadStageMatches(this.activeStageOrder, bets);
         this.loadingMatches = false;
-        this.extrasLoading = false;
       },
       error: () => {
         this.loadingMatches = false;
-        this.extrasLoading = false;
         this.stageError = 'Erro ao carregar dados iniciais.';
       },
     });
   }
 
-  patchExtrasForm(): void {
-    this.extrasConfig.forEach((cfg, index) => {
-      const row = this.extrasArray.at(index) as FormGroup;
-      const data = this.extrasMap[cfg.type];
-      if (data) {
-        row.patchValue({
-          type: cfg.type,
-          team: data.team ?? null,
-          player_name: data.player_name ?? '',
-        });
-      }
-    });
-  }
-
-  loadStageMatches(stageOrder: number, existingBets?: Bet[]): void {
+  private loadStageMatches(stageOrder: number, existingBets?: Bet[]): void {
     this.stageError = null;
     this.loadingMatches = true;
 
@@ -256,70 +177,6 @@ export class BetsPageComponent implements OnInit {
       error: () => {
         this.savingStage = false;
         this.stageError = 'Erro ao carregar palpites existentes.';
-      },
-    });
-  }
-
-  saveExtras(): void {
-    if (this.extrasSaving) return;
-    this.extrasSaving = true;
-    this.extrasError = null;
-    this.extrasSuccess = null;
-
-    const tournament = this.copaService.getTournamentId();
-    const requests: any[] = [];
-
-    this.extrasConfig.forEach((cfg, index) => {
-      const row = this.extrasArray.at(index) as FormGroup;
-      const type = cfg.type;
-      const existing = this.extrasMap[type];
-
-      const payload: Partial<ExtraBet> = {
-        tournament,
-        type,
-      };
-
-      if (cfg.useTeam) {
-        const teamId = row.value.team;
-        if (!teamId) {
-          return;
-        }
-        payload.team = teamId;
-        payload.player_name = '';
-      } else {
-        const playerName = (row.value.player_name || '').trim();
-        if (!playerName) {
-          return;
-        }
-        payload.player_name = playerName;
-        payload.team = null;
-      }
-
-      if (existing) {
-        payload.id = existing.id;
-      }
-
-      requests.push(this.copaService.saveExtraBet(payload));
-    });
-
-    if (!requests.length) {
-      this.extrasSaving = false;
-      return;
-    }
-
-    forkJoin(requests).subscribe({
-      next: (saved) => {
-        const map: { [type: string]: ExtraBet } = { ...this.extrasMap };
-        saved.forEach((e) => {
-          map[e.type] = e;
-        });
-        this.extrasMap = map;
-        this.extrasSaving = false;
-        this.extrasSuccess = 'Palpites especiais salvos.';
-      },
-      error: () => {
-        this.extrasSaving = false;
-        this.extrasError = 'Erro ao salvar palpites especiais.';
       },
     });
   }

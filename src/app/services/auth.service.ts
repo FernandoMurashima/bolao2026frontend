@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../environments/environments';
+import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
@@ -32,6 +32,21 @@ export class AuthService {
           this.setToken(resp.token);
         })
       );
+  }
+
+  changePassword(
+    oldPassword: string,
+    newPassword: string,
+    newPasswordConfirm: string
+  ): Observable<{ detail: string }> {
+    return this.http.post<{ detail: string }>(
+      `${this.apiUrl}/change-password/`,
+      {
+        old_password: oldPassword,
+        new_password: newPassword,
+        new_password_confirm: newPasswordConfirm,
+      }
+    );
   }
 
   logout(): void {

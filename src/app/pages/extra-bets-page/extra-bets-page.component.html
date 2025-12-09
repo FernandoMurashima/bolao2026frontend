@@ -1,0 +1,63 @@
+<div class="top-home-btn">
+  <a routerLink="/home" class="btn-home">Home</a>
+</div>
+
+<div class="extras-page">
+  <h2>Palpites especiais</h2>
+
+  <div class="alert info">
+    Preencha seus palpites especiais. Cada linha mostra quantos pontos vale.
+  </div>
+
+  <div class="alert error" *ngIf="extrasError">
+    {{ extrasError }}
+  </div>
+  <div class="alert success" *ngIf="extrasSuccess">
+    {{ extrasSuccess }}
+  </div>
+
+  <div *ngIf="extrasLoading">Carregando palpites especiais...</div>
+
+  <!-- AQUI: formGroup raiz -->
+  <form *ngIf="!extrasLoading" [formGroup]="extrasForm">
+    <!-- AQUI: dizemos que vamos trabalhar com o FormArray 'extras' -->
+    <div formArrayName="extras">
+      <!-- AQUI: cada linha é um FormGroup dentro do array -->
+      <div
+        class="extra-row"
+        *ngFor="let cfg of extrasConfig; let i = index"
+        [formGroupName]="i"
+      >
+        <div class="extra-label">
+          {{ cfg.label }}
+          <span class="points">({{ cfg.points }} pts)</span>
+        </div>
+
+        <div class="extra-input">
+          <ng-container *ngIf="cfg.useTeam; else playerField">
+            <select formControlName="team">
+              <option [ngValue]="null">Selecione...</option>
+              <option *ngFor="let t of teams" [ngValue]="t.id">
+                {{ t.code }} - {{ t.name }}
+              </option>
+            </select>
+          </ng-container>
+
+          <ng-template #playerField>
+            <input
+              type="text"
+              formControlName="player_name"
+              placeholder="Nome do jogador"
+            />
+          </ng-template>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="button" (click)="saveExtras()" [disabled]="extrasSaving">
+        {{ extrasSaving ? 'Salvando...' : 'Salvar palpites especiais' }}
+      </button>
+    </div>
+  </form>
+</div>
