@@ -10,6 +10,8 @@ interface MatchRowAdmin {
   match: Match;
   home_score: number | null;
   away_score: number | null;
+  home_penalties: number | null;
+  away_penalties: number | null;
 }
 
 @Component({
@@ -77,6 +79,8 @@ export class AdminResultsPageComponent implements OnInit {
           match: m,
           home_score: m.home_score,
           away_score: m.away_score,
+          home_penalties: m.home_penalties,
+          away_penalties: m.away_penalties,
         }));
         this.matchesByStage[order] = rows;
         this.loading = false;
@@ -105,7 +109,9 @@ export class AdminResultsPageComponent implements OnInit {
       this.copaService.updateMatchResult(
         r.match.id,
         r.home_score ?? null,
-        r.away_score ?? null
+        r.away_score ?? null,
+        r.home_penalties ?? null,
+        r.away_penalties ?? null
       )
     );
 
@@ -120,6 +126,8 @@ export class AdminResultsPageComponent implements OnInit {
             r.match = m;
             r.home_score = m.home_score;
             r.away_score = m.away_score;
+            r.home_penalties = m.home_penalties;
+            r.away_penalties = m.away_penalties;
           }
         });
         this.saving = false;

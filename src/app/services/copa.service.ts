@@ -29,6 +29,8 @@ export interface Match {
   group_name: string | null;
   home_score: number | null;
   away_score: number | null;
+  home_penalties: number | null;
+  away_penalties: number | null;
 }
 
 export interface Bet {
@@ -126,11 +128,15 @@ export class CopaService {
   updateMatchResult(
     matchId: number,
     home_score: number | null,
-    away_score: number | null
+    away_score: number | null,
+    home_penalties: number | null,
+    away_penalties: number | null
   ): Observable<Match> {
     return this.http.patch<Match>(`${this.apiUrl}/matches/${matchId}/`, {
       home_score,
       away_score,
+      home_penalties,
+      away_penalties,
     });
   }
 }

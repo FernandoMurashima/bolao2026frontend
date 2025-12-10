@@ -44,21 +44,44 @@
           <td>{{ row.match.home_team.code }}</td>
 
           <td class="score-inputs">
-            <input
-              type="number"
-              min="0"
-              [(ngModel)]="row.home_score"
-              name="home_{{ row.match.id }}"
-              [disabled]="!isSuper()"
-            />
-            <span>x</span>
-            <input
-              type="number"
-              min="0"
-              [(ngModel)]="row.away_score"
-              name="away_{{ row.match.id }}"
-              [disabled]="!isSuper()"
-            />
+            <!-- Gols nos 90 minutos -->
+            <div class="score-row">
+              <input
+                type="number"
+                min="0"
+                [(ngModel)]="row.home_score"
+                name="home_{{ row.match.id }}"
+                [disabled]="!isSuper()"
+              />
+              <span>x</span>
+              <input
+                type="number"
+                min="0"
+                [(ngModel)]="row.away_score"
+                name="away_{{ row.match.id }}"
+                [disabled]="!isSuper()"
+              />
+            </div>
+
+            <!-- Pênaltis, apenas para fases eliminatórias (order > 1) -->
+            <div class="penalties-row" *ngIf="activeStageOrder > 1">
+              <small>Pênaltis</small>
+              <input
+                type="number"
+                min="0"
+                [(ngModel)]="row.home_penalties"
+                name="home_pen_{{ row.match.id }}"
+                [disabled]="!isSuper()"
+              />
+              <span>x</span>
+              <input
+                type="number"
+                min="0"
+                [(ngModel)]="row.away_penalties"
+                name="away_pen_{{ row.match.id }}"
+                [disabled]="!isSuper()"
+              />
+            </div>
           </td>
 
           <td>{{ row.match.away_team.code }}</td>
