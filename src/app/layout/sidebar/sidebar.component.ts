@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -10,9 +11,13 @@ import { Router, RouterLink, RouterLinkActive } from '@angular/router';
   styleUrl: './sidebar.component.scss',
 })
 export class SidebarComponent {
-  constructor(private router: Router) {}
+  constructor(private router: Router, private auth: AuthService) {}
 
   isActive(path: string): boolean {
     return this.router.url.startsWith(path);
+  }
+
+  isSuperUser(): boolean {
+    return this.auth.isSuperUser();
   }
 }

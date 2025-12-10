@@ -4,15 +4,20 @@ import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
+export interface LoggedUser {
+  id: number;
+  username: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  is_superuser: boolean;
+  is_staff: boolean;
+  is_active: boolean;
+}
+
 interface LoginResponse {
   token: string;
-  user: {
-    id: number;
-    username: string;
-    first_name: string;
-    last_name: string;
-    email: string;
-  };
+  user: LoggedUser;
 }
 
 @Injectable({
@@ -21,6 +26,7 @@ interface LoginResponse {
 export class AuthService {
   private apiUrl = `${environment.apiBaseUrl}/api/accounts`;
   private tokenKey = 'bolao2026_token';
+  private userKey = 'bolao2026_user';
 
   constructor(private http: HttpClient) {}
 
@@ -30,6 +36,7 @@ export class AuthService {
       .pipe(
         tap((resp) => {
           this.setToken(resp.token);
+          this.setUser(resp.user);
         })
       );
   }
@@ -51,6 +58,7 @@ export class AuthService {
 
   logout(): void {
     localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem(this.userKey);
   }
 
   setToken(token: string): void {
@@ -61,11 +69,34 @@ export class AuthService {
     return localStorage.getItem(this.tokenKey);
   }
 
+  setUser(user: LoggedUser): void {
+    localStorage.setItem(this.userKey, JSON.stringify(user));
+  }
+
+  getUser(): LoggedUser | null {
+    const raw = localStorage.getItem(this.userKey);
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw) as LoggedUser;
+    } catch {
+      return null;
+    }
+  }
+
   isLoggedIn(): boolean {
     return !!this.getToken();
   }
 
-  getMe(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/me/`);
+  isSuperUser(): boolean {
+    const user = this.getUser();
+    return !!user?.is_superuser;
+  }
+
+  getMe(): Observable<LoggedUser> {
+    return this.http.get<LoggedUser>(`${this.apiUrl}/me/`).pipe(
+      tap((user) => {
+        this.setUser(user);
+      })
+    );
   }
 }

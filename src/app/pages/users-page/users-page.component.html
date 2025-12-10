@@ -1,0 +1,123 @@
+<div class="top-home-btn">
+  <a routerLink="/home" class="btn-home">Home</a>
+</div>
+
+<div class="users-admin">
+  <h3>Administração de Usuários</h3>
+
+  <div class="alert info">
+    Somente o superusuário tem acesso a esta tela. Aqui você pode criar,
+    editar, ativar/inativar e definir se o usuário é superusuário.
+  </div>
+
+  <div class="alert error" *ngIf="error">
+    {{ error }}
+  </div>
+  <div class="alert success" *ngIf="success">
+    {{ success }}
+  </div>
+
+  <div class="layout">
+    <div class="list-panel">
+      <div class="list-header">
+        <span>Usuários cadastrados</span>
+        <button type="button" (click)="newUser()">Novo usuário</button>
+      </div>
+
+      <div *ngIf="loading">Carregando usuários...</div>
+
+      <table class="users-table" *ngIf="!loading && users.length">
+        <thead>
+          <tr>
+            <th>Usuário</th>
+            <th>Nome</th>
+            <th>E-mail</th>
+            <th>Ativo</th>
+            <th>Super</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let u of users">
+            <td>{{ u.username }}</td>
+            <td>{{ u.first_name }} {{ u.last_name }}</td>
+            <td>{{ u.email }}</td>
+            <td>{{ u.is_active ? 'Sim' : 'Não' }}</td>
+            <td>{{ u.is_superuser ? 'Sim' : 'Não' }}</td>
+            <td class="actions-cell">
+              <button type="button" (click)="editUser(u)">Editar</button>
+              <button
+                type="button"
+                class="danger"
+                (click)="deleteUser(u)"
+                [disabled]="deleting"
+              >
+                Excluir
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div *ngIf="!loading && !users.length">
+        Nenhum usuário cadastrado.
+      </div>
+    </div>
+
+    <div class="form-panel">
+      <h4>{{ editingId ? 'Editar usuário' : 'Novo usuário' }}</h4>
+
+      <form [formGroup]="form" (ngSubmit)="save()">
+        <div class="form-grid">
+          <label>
+            Usuário (login)
+            <input type="text" formControlName="username" />
+          </label>
+
+          <label>
+            Primeiro nome
+            <input type="text" formControlName="first_name" />
+          </label>
+
+          <label>
+            Sobrenome
+            <input type="text" formControlName="last_name" />
+          </label>
+
+          <label>
+            E-mail
+            <input type="email" formControlName="email" />
+          </label>
+
+          <label class="checkbox">
+            <input type="checkbox" formControlName="is_active" />
+            Ativo
+          </label>
+
+          <label class="checkbox">
+            <input type="checkbox" formControlName="is_superuser" />
+            Superusuário
+          </label>
+        </div>
+
+        <div class="form-grid">
+          <label>
+            Senha
+            <input type="password" formControlName="password" />
+          </label>
+
+          <label>
+            Confirmar senha
+            <input type="password" formControlName="password_confirm" />
+          </label>
+        </div>
+
+        <div class="actions">
+          <button type="submit" [disabled]="saving">
+            {{ saving ? 'Salvando...' : 'Salvar usuário' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

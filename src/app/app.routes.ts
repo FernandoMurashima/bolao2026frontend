@@ -9,6 +9,7 @@ import { AdminResultsPageComponent } from './pages/admin-results-page/admin-resu
 import { AuthGuard } from './guards/auth.guard';
 import { ChangePasswordPageComponent } from './pages/change-password-page/change-password-page.component';
 import { ExtraBetsPageComponent } from './pages/extra-bets-page/extra-bets-page.component';
+import { UsersPageComponent } from './pages/users-page/users-page.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -25,6 +26,7 @@ export const routes: Routes = [
       { path: 'regulamento', component: RegulationPageComponent },
       { path: 'admin/resultados', component: AdminResultsPageComponent },
       { path: 'trocar-senha', component: ChangePasswordPageComponent },
+      { path: 'usuarios', component: UsersPageComponent },
     ],
   },
   { path: '**', redirectTo: '' },

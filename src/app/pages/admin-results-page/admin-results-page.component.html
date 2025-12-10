@@ -2,14 +2,12 @@
   <a routerLink="/home" class="btn-home">Home</a>
 </div>
 
-<!-- resto do HTML do ranking que você já tem -->
-
 <div class="admin-results">
   <h3>Resultados oficiais dos jogos</h3>
 
   <div class="alert info">
     Apenas a organização deve ter acesso a esta tela.
-    Os resultados oficiais aqui informados atualizam automaticamente os pontos e o ranking.
+    Os resultados oficiais atualizam automaticamente o ranking.
   </div>
 
   <div class="tabs" *ngIf="stages.length">
@@ -23,12 +21,8 @@
     </button>
   </div>
 
-  <div class="alert error" *ngIf="error">
-    {{ error }}
-  </div>
-  <div class="alert success" *ngIf="success">
-    {{ success }}
-  </div>
+  <div class="alert error" *ngIf="error">{{ error }}</div>
+  <div class="alert success" *ngIf="success">{{ success }}</div>
 
   <div *ngIf="loading">Carregando dados...</div>
 
@@ -48,12 +42,14 @@
           <td>{{ row.match.group_name }}</td>
           <td>{{ row.match.kickoff | date: 'short' }}</td>
           <td>{{ row.match.home_team.code }}</td>
+
           <td class="score-inputs">
             <input
               type="number"
               min="0"
               [(ngModel)]="row.home_score"
               name="home_{{ row.match.id }}"
+              [disabled]="!isSuper()"
             />
             <span>x</span>
             <input
@@ -61,8 +57,10 @@
               min="0"
               [(ngModel)]="row.away_score"
               name="away_{{ row.match.id }}"
+              [disabled]="!isSuper()"
             />
           </td>
+
           <td>{{ row.match.away_team.code }}</td>
         </tr>
       </tbody>
@@ -73,7 +71,11 @@
     </div>
 
     <div class="actions">
-      <button type="button" (click)="saveResults()" [disabled]="saving">
+      <button
+        type="button"
+        (click)="saveResults()"
+        [disabled]="saving || !isSuper()"
+      >
         {{ saving ? 'Salvando...' : 'Salvar resultados da fase' }}
       </button>
     </div>

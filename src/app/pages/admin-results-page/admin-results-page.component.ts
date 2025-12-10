@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CopaService, Stage, Match } from '../../services/copa.service';
 import { forkJoin } from 'rxjs';
 import { RouterModule } from '@angular/router';
-
+import { AuthService } from '../../services/auth.service';
 
 interface MatchRowAdmin {
   match: Match;
@@ -28,10 +28,17 @@ export class AdminResultsPageComponent implements OnInit {
   error: string | null = null;
   success: string | null = null;
 
-  constructor(private copaService: CopaService) {}
+  constructor(
+    private copaService: CopaService,
+    private auth: AuthService
+  ) {}
 
   ngOnInit(): void {
     this.loadStages();
+  }
+
+  isSuper(): boolean {
+    return this.auth.isSuperUser();
   }
 
   loadStages(): void {
@@ -86,6 +93,7 @@ export class AdminResultsPageComponent implements OnInit {
   }
 
   saveResults(): void {
+    if (!this.isSuper()) return; // segurança adicional
     const rows = this.getCurrentRows();
     if (!rows.length) return;
 
@@ -96,17 +104,16 @@ export class AdminResultsPageComponent implements OnInit {
     const requests = rows.map((r) =>
       this.copaService.updateMatchResult(
         r.match.id,
-        r.home_score === null || r.home_score === undefined ? null : r.home_score,
-        r.away_score === null || r.away_score === undefined ? null : r.away_score
+        r.home_score ?? null,
+        r.away_score ?? null
       )
     );
 
     forkJoin(requests).subscribe({
       next: (updated) => {
         const map: { [id: number]: Match } = {};
-        updated.forEach((m) => {
-          map[m.id] = m;
-        });
+        updated.forEach((m) => (map[m.id] = m));
+
         rows.forEach((r) => {
           const m = map[r.match.id];
           if (m) {
@@ -116,7 +123,7 @@ export class AdminResultsPageComponent implements OnInit {
           }
         });
         this.saving = false;
-        this.success = 'Resultados salvos com sucesso para esta fase.';
+        this.success = 'Resultados salvos com sucesso.';
       },
       error: () => {
         this.saving = false;

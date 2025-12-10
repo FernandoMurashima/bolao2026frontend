@@ -3,6 +3,9 @@
     <span class="logo">Copa 2026</span>
   </div>
   <ul class="menu">
+    <li [class.active]="isActive('/trocar-senha')">
+      <a routerLink="/trocar-senha" routerLinkActive="active">Trocar Senha</a>
+    </li>
     <li [class.active]="isActive('/palpites')">
       <a routerLink="/palpites" routerLinkActive="active">Palpites</a>
     </li>
@@ -21,6 +24,11 @@
       <a routerLink="/admin/resultados" routerLinkActive="active">
         Resultados oficiais
       </a>
+    </li>
+
+    <!-- NOVO: menu de usuários (só superuser) -->
+    <li *ngIf="isSuperUser()" [class.active]="isActive('/usuarios')">
+      <a routerLink="/usuarios" routerLinkActive="active">Usuários</a>
     </li>
   </ul>
 </nav>
